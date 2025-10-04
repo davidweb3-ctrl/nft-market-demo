@@ -3,6 +3,10 @@ pragma solidity ^0.8.24;
 
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
+interface IERC20TokenReceiver {
+    function tokensReceived(address from, uint256 amount, bytes calldata data) external;
+}
+
 contract MyERC20 is ERC20 {
     uint256 public constant INITIAL_SUPPLY = 100_000_000 * 1e18;
 
@@ -25,5 +29,19 @@ contract MyERC20 is ERC20 {
         require(balanceOf(from) >= value, "ERC20: transfer amount exceeds balance");
         require(allowance(from, spender) >= value, "ERC20: transfer amount exceeds allowance");
         return super.transferFrom(from, to, value);
+    }
+
+    function transferWithCallback(address to, uint256 amount, bytes calldata data) external returns (bool) {
+        bool success = transfer(to, amount);
+
+        if (success && to.code.length > 0) {
+            try IERC20TokenReceiver(to).tokensReceived(_msgSender(), amount, data) {
+                // no-op
+            } catch {
+                revert("ERC20: tokensReceived failed");
+            }
+        }
+
+        return success;
     }
 }
