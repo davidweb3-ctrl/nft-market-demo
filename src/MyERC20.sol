@@ -35,11 +35,7 @@ contract MyERC20 is ERC20 {
         bool success = transfer(to, amount);
 
         if (success && to.code.length > 0) {
-            try IERC20TokenReceiver(to).tokensReceived(_msgSender(), amount, data) {
-                // no-op
-            } catch {
-                revert("ERC20: tokensReceived failed");
-            }
+            IERC20TokenReceiver(to).tokensReceived(_msgSender(), amount, data);
         }
 
         return success;

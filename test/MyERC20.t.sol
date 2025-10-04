@@ -62,7 +62,7 @@ contract MyERC20Test is Test {
     function test_RevertWhen_CallbackContractFails() public {
         FailingReceiver badReceiver = new FailingReceiver();
 
-        vm.expectRevert("ERC20: tokensReceived failed");
+        vm.expectRevert("onTokensReceived failed");
         token.transferWithCallback(address(badReceiver), 1 ether, "");
     }
 
