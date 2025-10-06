@@ -3,9 +3,8 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useState } from "react";
 import { TokenBankDashboard } from "@/components/token-bank-dashboard";
+import { MarketEventsListener } from "@/components/market-events-listener";
 
 export default function Home() {
   const { address } = useAccount();
@@ -26,6 +25,9 @@ export default function Home() {
               </div>
               <ConnectButton showBalance={false} chainStatus="icon" />
             </CardHeader>
+            <CardContent>
+              <MarketEventsListener />
+            </CardContent>
           </Card>
         </header>
 

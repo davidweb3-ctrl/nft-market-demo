@@ -16,14 +16,15 @@ contract NFTMarket is IERC20TokenReceiver, IERC721Receiver {
 
     mapping(uint256 tokenId => Listing) public listings;
 
-    event Listed(address indexed seller, uint256 indexed tokenId, address indexed paymentToken, uint256 price);
-    event Purchase(
+    event NFTListed(address indexed seller, uint256 indexed tokenId, address indexed paymentToken, uint256 price);
+    event NFTPurchased(
         address indexed buyer,
         address indexed seller,
         uint256 indexed tokenId,
         address paymentToken,
         uint256 price,
-        uint256 amountPaid
+        uint256 amountPaid,
+        bool viaCallback
     );
 
     constructor(MyERC721 _collection) {
@@ -44,7 +45,7 @@ contract NFTMarket is IERC20TokenReceiver, IERC721Receiver {
 
         collection.safeTransferFrom(msg.sender, address(this), tokenId);
 
-        emit Listed(msg.sender, tokenId, address(paymentToken), price);
+        emit NFTListed(msg.sender, tokenId, address(paymentToken), price);
     }
 
     function buyNFT(uint256 tokenId) external {
@@ -61,7 +62,15 @@ contract NFTMarket is IERC20TokenReceiver, IERC721Receiver {
 
         collection.safeTransferFrom(address(this), msg.sender, tokenId);
 
-        emit Purchase(msg.sender, listing.seller, tokenId, address(listing.paymentToken), listing.price, listing.price);
+        emit NFTPurchased(
+            msg.sender,
+            listing.seller,
+            tokenId,
+            address(listing.paymentToken),
+            listing.price,
+            listing.price,
+            false
+        );
     }
 
     function tokensReceived(address from, uint256 amount, bytes calldata data) external override {
@@ -84,7 +93,7 @@ contract NFTMarket is IERC20TokenReceiver, IERC721Receiver {
 
         collection.safeTransferFrom(address(this), from, tokenId);
 
-        emit Purchase(from, listing.seller, tokenId, address(listing.paymentToken), listing.price, amount);
+        emit NFTPurchased(from, listing.seller, tokenId, address(listing.paymentToken), listing.price, amount, true);
     }
 
     function onERC721Received(address, address, uint256, bytes calldata) external view override returns (bytes4) {
