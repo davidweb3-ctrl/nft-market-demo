@@ -1,36 +1,51 @@
 import { cookieStorage, createStorage } from "wagmi";
-import { http } from "wagmi";
+import { createConfig, http } from "wagmi";
 import { mainnet, sepolia } from "wagmi/chains";
 import { getDefaultConfig } from "@rainbow-me/rainbowkit";
 import { defineChain } from "viem";
 
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || "demo";
 
-const anvilChain = defineChain({
+// 定义 Anvil 本地链 (Chain ID 31337)
+const anvil = defineChain({
   id: 31337,
-  name: "Anvil",
-  network: "anvil",
+  name: "Anvil (Localhost)",
   nativeCurrency: {
+    decimals: 18,
     name: "Ether",
     symbol: "ETH",
-    decimals: 18,
   },
   rpcUrls: {
-    default: { http: ["http://127.0.0.1:8545"] },
-    public: { http: ["http://127.0.0.1:8545"] },
+    default: {
+      http: ["http://127.0.0.1:8545"],
+    },
   },
 });
+
+// 为 SSR 提供 indexedDB mock
+if (typeof window === "undefined") {
+  const mockIDBRequest = {
+    onsuccess: null,
+    onerror: null,
+    result: null,
+  };
+  
+  (global as any).indexedDB = {
+    open: () => mockIDBRequest,
+    deleteDatabase: () => mockIDBRequest,
+  };
+}
 
 export const wagmiConfig = getDefaultConfig({
   appName: "NFT Market Demo",
   projectId,
-  chains: [anvilChain, sepolia, mainnet],
+  chains: [anvil, sepolia, mainnet],
   ssr: true,
   storage: createStorage({
     storage: cookieStorage,
   }),
   transports: {
-    [anvilChain.id]: http("http://127.0.0.1:8545"),
+    [anvil.id]: http("http://127.0.0.1:8545"),
     [sepolia.id]: http(),
     [mainnet.id]: http(),
   },

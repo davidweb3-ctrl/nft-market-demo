@@ -21,10 +21,12 @@ export default function Home() {
                   TokenBank Dashboard
                 </CardTitle>
                 <p className="text-sm text-muted-foreground">
-                  Manage your deposits and withdrawals using MyERC20 tokens. Monitor marketplace activity below.
+                  Manage deposits and marketplace trades with MyERC20 and MyERC721.
                 </p>
               </div>
-              <ConnectButton showBalance={false} chainStatus="icon" />
+              <div className="flex gap-2">
+                <ConnectButton showBalance={false} chainStatus="icon" />
+              </div>
             </CardHeader>
             <CardContent>
               <MarketEventsListener />

@@ -18,10 +18,10 @@ interface EventLog {
 }
 
 const LISTED_EVENT = parseAbiItem(
-  "event NFTListed(address indexed seller, uint256 indexed tokenId, address indexed paymentToken, uint256 price)"
+  "event Listed(address indexed seller, uint256 indexed tokenId, address indexed paymentToken, uint256 price)"
 );
 const PURCHASED_EVENT = parseAbiItem(
-  "event NFTPurchased(address indexed buyer, address indexed seller, uint256 indexed tokenId, address paymentToken, uint256 price, uint256 amountPaid, bool viaCallback)"
+  "event Purchase(address indexed buyer, address indexed seller, uint256 indexed tokenId, address paymentToken, uint256 price, uint256 amountPaid)"
 );
 
 export function MarketEventsListener() {
@@ -37,16 +37,19 @@ export function MarketEventsListener() {
     const unwatchList = client.watchEvent({
       address: deployment.address,
       abi: nftMarketAbi,
-      eventName: "NFTListed",
+      eventName: "Listed",
       onLogs: (entries) => {
+        const validEntries = entries.filter((entry) => entry.args?.seller);
+        if (validEntries.length === 0) return;
+        
         setLogs((prev) => [
-          ...entries.map((entry) => ({
+          ...validEntries.map((entry) => ({
             type: "list" as const,
-            seller: entry.args.seller,
-            tokenId: entry.args.tokenId,
-            paymentToken: entry.args.paymentToken,
-            price: entry.args.price,
-            amountPaid: entry.args.price,
+            seller: entry.args.seller!,
+            tokenId: entry.args.tokenId!,
+            paymentToken: entry.args.paymentToken!,
+            price: entry.args.price!,
+            amountPaid: entry.args.price!,
             txHash: entry.transactionHash,
           })),
           ...prev,
@@ -57,18 +60,20 @@ export function MarketEventsListener() {
     const unwatchPurchase = client.watchEvent({
       address: deployment.address,
       abi: nftMarketAbi,
-      eventName: "NFTPurchased",
+      eventName: "Purchase",
       onLogs: (entries) => {
+        const validEntries = entries.filter((entry) => entry.args?.seller);
+        if (validEntries.length === 0) return;
+        
         setLogs((prev) => [
-          ...entries.map((entry) => ({
+          ...validEntries.map((entry) => ({
             type: "purchase" as const,
-            seller: entry.args.seller,
-            buyer: entry.args.buyer,
-            tokenId: entry.args.tokenId,
-            paymentToken: entry.args.paymentToken,
-            price: entry.args.price,
-            amountPaid: entry.args.amountPaid,
-            viaCallback: entry.args.viaCallback,
+            seller: entry.args.seller!,
+            buyer: entry.args.buyer!,
+            tokenId: entry.args.tokenId!,
+            paymentToken: entry.args.paymentToken!,
+            price: entry.args.price!,
+            amountPaid: entry.args.amountPaid!,
             txHash: entry.transactionHash,
           })),
           ...prev,
@@ -98,7 +103,7 @@ export function MarketEventsListener() {
           <div>Price: {log.price.toString()}</div>
           {log.type === "purchase" && (
             <div>
-              Amount Paid: {log.amountPaid.toString()} {log.viaCallback ? "(via tokensReceived)" : ""}
+              Amount Paid: {log.amountPaid.toString()}
             </div>
           )}
           <div>Tx: {log.txHash}</div>

@@ -42,3 +42,4 @@ contract TokenBank {
         return _balances[account];
     }
 }
+
