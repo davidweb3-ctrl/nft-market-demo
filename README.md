@@ -9,9 +9,6 @@ A full-stack NFT marketplace built with Foundry, Next.js, and Web3 technologies.
 ### Wallet Connection
 ![Wallet Connection](docs/images/wallet-connection.png)
 
-### NFT Marketplace
-![NFT Marketplace](docs/images/marketplace-overview.png)
-
 ### NFT Listing
 ![NFT Listing](docs/images/nft-listing.png)
 

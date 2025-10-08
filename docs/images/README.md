@@ -9,7 +9,6 @@ This directory contains screenshots for the project README.
    - `wallet-connection.png`
    - `nft-listing.png`
    - `nft-purchase.png`
-   - `marketplace-overview.png`
    etc.
 
 3. Reference them in the main README.md using:
